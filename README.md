@@ -64,7 +64,7 @@ awsKubernetes/
 | `main.tf` | Root configuration that sets up AWS, Kubernetes, and Helm providers. Calls VPC and EKS modules and deploys the AWS Load Balancer Controller via Helm. |
 | `variables.tf` | Defines all input variables: region, cluster name, VPC CIDR, subnet CIDRs, node sizing, instance types, and container image URLs. |
 | `outputs.tf` | Exports cluster endpoint, security group ID, region, cluster name, kubectl configuration command, and ALB DNS name. |
-| `versions.tf` | Specifies required Terraform version (≥1.0.0) and provider versions (AWS ≥4.0, Kubernetes ≥2.10, Helm ≥2.5). |
+| `versions.tf` | Specifies required Terraform version (≥1.0.0) and provider versions (AWS ≥6.0, Kubernetes ≥3.0, Helm ≥3.0). |
 | `iam_alb.tf` | Creates OIDC provider for EKS, IAM role with web identity trust, and comprehensive IAM policy for AWS Load Balancer Controller. |
 | `autoscaler.tf` | Deploys Kubernetes Cluster Autoscaler via Helm with IRSA (IAM Roles for Service Accounts). Configures Horizontal Pod Autoscaler for javaapp with CPU/memory scaling. |
 | `deployment_javaapp.tf` | Deploys Java backend: Deployment with 2 replicas, security contexts, resource limits, liveness/readiness probes, Service, ServiceAccount, IAM role for DynamoDB access via EKS Pod Identity. |
