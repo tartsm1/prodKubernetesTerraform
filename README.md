@@ -134,7 +134,7 @@ Before deploying, your IAM user needs appropriate permissions.
 
 ```bash
 aws iam create-policy \
-  --policy-name TerraformDeployerPolicy \
+  --policy-name TerraformEKSDeployerPolicy \
   --policy-document file://terraform-deployer-policy.json \
   --description "Policy for Terraform to deploy EKS infrastructure"
 
@@ -268,7 +268,6 @@ After the deployment is complete, refresh the Terraform state to output the ALB 
 ```bash
 terraform refresh
 ```
-NB: currently working ONLY HTTP PORT 80
 
 ### Create Cognito Users
 
@@ -326,7 +325,7 @@ kubectl get hpa -n development
 |---------|-------------|
 | **Private Subnets** | EKS nodes run in private subnets, no direct internet access |
 | **NAT Gateway** | Outbound internet access for private subnets |
-| **Pod Security Standards** | `restricted` profile enforced on default namespace |
+| **Pod Security Standards** | `restricted` profile enforced on development namespace |
 | **Security Contexts** | Non-root users, read-only filesystems, dropped capabilities |
 | **Network Policies** | Ingress/egress rules for javaapp |
 | **Cognito Authentication** | Implemented in React app |
@@ -367,7 +366,22 @@ kubectl describe pod POD_NAME
 ```
 Check for resource constraints or node group scaling issues.
 
-### Useful Commands
+#### Tail logs
+```bash
+kubectl logs -f -n development -l app=javaapp
+```
+
+#### HPA status
+```bash
+kubectl describe hpa -n development javaapp-hpa | tail -20
+```
+
+#### Metrics server
+```bash
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+```
+
+### Useful Terraform Commands
 
 ```bash
 # View Terraform state
@@ -416,6 +430,11 @@ Recommendations do improve your setup [./recommendations.md](./recommendations.m
 
 --- 
 
+## Contacts
+
+My Slack: [friendly-solutions](https://join.slack.com/t/friendlysolutionsco/shared_invite/zt-3gqtsiax0-m7uCPEfzprlPWYntp4lcXg) 
+
+--- 
 
 ## License
 
