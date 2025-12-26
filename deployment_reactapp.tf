@@ -49,6 +49,12 @@ resource "kubernetes_deployment_v1" "reactapp" {
           seccomp_profile {
             type = "RuntimeDefault"
           }
+          se_linux_options {
+            level = "s0:c123,c456"
+            role  = "system_r"
+            type  = "container_t"
+            user  = "system_u"
+          }
         }
         container {
           image = var.reactapp_image
@@ -60,6 +66,12 @@ resource "kubernetes_deployment_v1" "reactapp" {
             run_as_non_root            = true
             capabilities {
               drop = ["ALL"]
+            }
+            se_linux_options {
+              level = "s0:c123,c456"
+              role  = "system_r"
+              type  = "container_t"
+              user  = "system_u"
             }
           }
           port {

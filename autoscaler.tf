@@ -1,3 +1,20 @@
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  namespace  = "kube-system"
+  version    = "3.12.2" # You can update this to the latest version
+
+  set = [
+    {
+      name  = "args[0]"
+      value = "--kubelet-preferred-address-types=InternalIP"
+    }
+  ]
+
+  depends_on = [module.eks]
+}
+
 resource "kubernetes_service_account_v1" "cluster_autoscaler" {
   metadata {
     name      = "cluster-autoscaler"
@@ -261,7 +278,6 @@ resource "aws_eks_pod_identity_association" "cluster_autoscaler" {
   role_arn        = aws_iam_role.cluster_autoscaler.arn
 }
 
-
 resource "kubernetes_horizontal_pod_autoscaler_v2" "javaapp" {
   metadata {
     name      = "javaapp-hpa"
@@ -298,6 +314,69 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "javaapp" {
         target {
           type                = "Utilization"
           average_utilization = 80
+        }
+      }
+    }
+
+    behavior {
+      scale_down {
+        stabilization_window_seconds = 300
+        select_policy                = "Max"
+        policy {
+          type           = "Percent"
+          value          = 50
+          period_seconds = 60
+        }
+      }
+      scale_up {
+        stabilization_window_seconds = 0
+        select_policy                = "Max"
+        policy {
+          type           = "Percent"
+          value          = 100
+          period_seconds = 30
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler_v2" "reactapp" {
+  metadata {
+    name      = "reactapp-hpa"
+    namespace = "development"
+  }
+
+  depends_on = [module.eks]
+
+  spec {
+    scale_target_ref {
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = kubernetes_deployment_v1.reactapp.metadata[0].name
+    }
+
+    min_replicas = 2
+    max_replicas = 3
+
+    metric {
+      type = "Resource"
+      resource {
+        name = "cpu"
+        target {
+          type                = "Utilization"
+          average_utilization = 80
+        }
+      }
+    }
+
+    metric {
+      type = "Resource"
+      resource {
+        name = "memory"
+        target {
+          type                = "Utilization"
+          average_utilization = 70
         }
       }
     }
