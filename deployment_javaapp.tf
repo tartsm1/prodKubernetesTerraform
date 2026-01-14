@@ -7,6 +7,18 @@ resource "kubernetes_deployment_v1" "javaapp" {
     }
   }
 
+  # Depend on Pod Identity addon to ensure credentials injection works
+  depends_on = [module.eks]
+
+  # This creates an implicit dependency on the Pod Identity addon
+  # Pods will only be created after the addon is fully installed
+  lifecycle {
+    precondition {
+      condition     = module.eks.pod_identity_addon_arn != ""
+      error_message = "Pod Identity addon must be installed before creating javaapp pods"
+    }
+  }
+
   spec {
     replicas               = 2
     revision_history_limit = 3
@@ -34,9 +46,7 @@ resource "kubernetes_deployment_v1" "javaapp" {
           }
           se_linux_options {
             level = "s0:c123,c456"
-            role  = "system_r"
             type  = "container_t"
-            user  = "system_u"
           }
         }
 
@@ -104,9 +114,7 @@ resource "kubernetes_deployment_v1" "javaapp" {
             }
             se_linux_options {
               level = "s0:c123,c456"
-              role  = "system_r"
               type  = "container_t"
-              user  = "system_u"
             }
           }
           port {

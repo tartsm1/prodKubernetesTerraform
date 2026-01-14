@@ -50,7 +50,11 @@ resource "helm_release" "aws_load_balancer_controller" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
+  version    = "1.11.0"
   namespace  = "kube-system"
+
+  # Workaround for Helm provider 3.0+ schema validation issues
+  disable_openapi_validation = true
 
   set = [
     {

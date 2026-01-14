@@ -368,12 +368,12 @@ Check for resource constraints or node group scaling issues.
 
 #### Tail logs
 ```bash
-kubectl logs -f -n development -l app=javaapp
+kubectl logs -f -n development -l app=javaapp --tail 500
 ```
 
 #### HPA status
 ```bash
-kubectl describe hpa -n development javaapp-hpa | tail -20
+kubectl describe hpa -n development javaapp-hpa --tail 500
 ```
 
 #### Metrics server

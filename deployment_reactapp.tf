@@ -4,6 +4,8 @@ resource "kubernetes_config_map_v1" "reactapp_config" {
     namespace = "development"
   }
 
+  depends_on = [module.eks]
+
   data = {
     "app-config.js" = <<-EOT
       window.APP_CONFIG = {
@@ -23,6 +25,8 @@ resource "kubernetes_deployment_v1" "reactapp" {
       app = "reactapp"
     }
   }
+
+  depends_on = [module.eks]
 
   spec {
     replicas               = 2
@@ -51,9 +55,7 @@ resource "kubernetes_deployment_v1" "reactapp" {
           }
           se_linux_options {
             level = "s0:c123,c456"
-            role  = "system_r"
             type  = "container_t"
-            user  = "system_u"
           }
         }
         container {
@@ -69,9 +71,7 @@ resource "kubernetes_deployment_v1" "reactapp" {
             }
             se_linux_options {
               level = "s0:c123,c456"
-              role  = "system_r"
               type  = "container_t"
-              user  = "system_u"
             }
           }
           port {
@@ -146,10 +146,13 @@ resource "kubernetes_ingress_v1" "main_ingress" {
     name      = "main-ingress"
     namespace = "development"
     annotations = {
-      "alb.ingress.kubernetes.io/scheme"      = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type" = "ip"
+      "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"      = "ip"
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/api/test"
     }
   }
+
+  depends_on = [module.eks]
 
   spec {
     ingress_class_name = "alb"
